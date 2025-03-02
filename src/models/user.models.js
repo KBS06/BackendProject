@@ -47,7 +47,7 @@ const userSchema = new Schema({
 userSchema.pre("save",async function (next){//next to transfer control to next after function
     if(!this.isModified("password")) return next();
     
-    this.password = bcrypt.hash(this.password,10)//10 is number of rounds
+    this.password =await bcrypt.hash(this.password,10)//10 is number of rounds
     next()
 } );//it changes everytime so if condition is used
 

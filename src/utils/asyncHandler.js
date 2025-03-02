@@ -1,7 +1,7 @@
  //helper file for controllers
- const asyncHandler = (requestHandler) => {
-    return (req, res, next) => {
-        Promise.resolve(requestHandler(req,res,next)).
+ const asyncHandler =  (requestHandler) => {
+    return async (req, res, next) => {
+        await Promise.resolve(requestHandler(req,res,next)).
         catch((error) => next(error))
  }
 }
