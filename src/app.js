@@ -22,4 +22,12 @@ app.use(express.static('public'))//to serve static files
 
 app.use(cookieParser());//parse the incoming cookies
 
+//routes import
+
+import userRouter from './routes/user.routes.js'
+
+//routes declaration
+app.use("/api/v1/users",userRouter)
+//URL EX: http://localhost:8000/api/v1/users/register
+
 export { app };

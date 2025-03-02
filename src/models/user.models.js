@@ -1,6 +1,6 @@
 import mongoose,{Schema} from 'mongoose';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';//for encoding and decoding 
 
 const userSchema = new Schema({
     username:{
@@ -16,20 +16,20 @@ const userSchema = new Schema({
         required:true,
         unique:true,
         lowercase:true,
-        trim:true,//for white spaces
+        trim:true,
     },
     fullName:{
         type:String,
         required:true,
-        trim:true,//for white spaces
+        trim:true,
         index:true
     },
     avatar:{
-        type:String,//cloudnary url
+        type:String,//cloudinary url
         required:true
     },
     coverImage:{
-        type:String,//cloudnary url
+        type:String,//cloudinary url
     },
     watchHistory:[{
         type:Schema.Types.ObjectId,
