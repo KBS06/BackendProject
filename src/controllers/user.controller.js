@@ -19,7 +19,7 @@ const registerUser = asyncHandler( async(req,res) => {
     //return response
 
     const { fullName,email,username,password } = req.body//data from json or forms..not for url
-    console.log("email: ",email);
+    //console.log(req.body);
 
     // if(fullName === ""){
     //     throw new ApiError(400,"Fullname is required")
@@ -32,7 +32,7 @@ const registerUser = asyncHandler( async(req,res) => {
         throw new ApiError(400,"All fields are required")
     }
 
-    const existedUser = User.findOne({//for checking if user already exists
+    const existedUser =await User.findOne({//for checking if user already exists
         $or: [ { username } , { email }]//for checking moere than one fields
     })
 
@@ -40,8 +40,13 @@ const registerUser = asyncHandler( async(req,res) => {
         throw new ApiError(409,"User with Username or email already exists")
     }
 
+    //console.log(req.files);
     const avatarLocalPath = req.files?.avatar[0]?.path;//[0] as it returns obj of avatar and path
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+        coverImageLocalPath=req.files.coverImage[0].path;
+    }
 
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar file is required.")
@@ -69,7 +74,7 @@ const registerUser = asyncHandler( async(req,res) => {
     //by using select we can tell what fields to be shown...-means not to be added like password
 
     if(!createdUser){
-        throw new ApiError(500,"Something went wrong while regitering the user ");
+        throw new ApiError(500,"Something went wrong while registering the user ");
     }
 
     return res.status(201).json(
