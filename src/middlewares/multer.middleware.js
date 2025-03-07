@@ -1,4 +1,4 @@
-import multer from 'multer';
+import multer from 'multer';//for storing files in storage
 
 const storage = multer.diskStorage({
     destination: function(req,file,cb){
