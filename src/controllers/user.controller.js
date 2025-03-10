@@ -4,7 +4,10 @@ import { User} from "../models/user.models.js";//checking if user already exists
 import { uploadCloudinary } from "../utils/cloudinary.js";//for uploading images and large files to cloudinary
 import { ApiResponse } from "../utils/ApiResponse.js";//for giving user response
 import jwt from 'jsonwebtoken';
+import {v2 as cloudinary} from 'cloudinary';
 import mongoose from "mongoose";
+import { ObjectId } from "mongodb";
+
 
 //as access and refresh tokens will be used many times
 
@@ -167,15 +170,18 @@ const loginUser = asyncHandler(async(req,res) => {
 const logoutUser = asyncHandler(async(req,res) => {
     await User.findByIdAndUpdate(
         req.user._id,//find user
-        {//update operator set
-            $set: {
-                refreshToken: undefined
+
+        {//update operator unset
+            $unset: {
+                refreshToken: 1//this removes the field from document
             }
         },
         {
             new : true
         }
     )
+
+    console.log(`${req.user.username} `)
 
     const options = {
         httpOnly: true,
@@ -238,7 +244,7 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
 })
 
 //Password change
-
+//give passwords in strings in postman
 const changeCurrentPassword = asyncHandler(async(req,res) => {
     const {oldPassword , newPassword }= req.body
 
@@ -268,12 +274,18 @@ const changeCurrentPassword = asyncHandler(async(req,res) => {
 
 //get current user
 const getCurrentUser = asyncHandler(async(req,res) =>{
+    console.log(req.user);
+
     return res
     .status(200)
     .json(
-        200,
-        req.user,
-        "Current user fetched successfully"
+        new ApiResponse(
+            200,
+            {
+                user:req.user//it should be passed as object
+            },
+            "Current user fetched successfully"
+        )
     )
 })
 
@@ -282,7 +294,7 @@ const getCurrentUser = asyncHandler(async(req,res) =>{
 const updateAccountDetails = asyncHandler(async(req,res) =>{
     const {fullName,email} = req.body 
 
-    if(!fullName || !email){
+    if(!(fullName || email)){
         throw new ApiError(400,"All fields are required")
     }
 
@@ -306,7 +318,7 @@ const updateAccountDetails = asyncHandler(async(req,res) =>{
 })
 
 //Update user avatar
-
+//give key as avatar in postman
 const updateUserAvatar = asyncHandler(async(req,res) =>{
     const avatarLocalPath = req.file?.path
     //first used files as it was array object or multiple objects...here one change only so file
@@ -366,13 +378,13 @@ const updateUserAvatar = asyncHandler(async(req,res) =>{
 //Update user coverImage
 
 const updateUserCoverImage = asyncHandler(async(req,res) =>{
-    const coverImageLocalPath = await req.file?.path
+    const coverImageLocalPath =req.file?.path
 
     if(!coverImageLocalPath){
         throw new ApiError(400,"Cover Image file is missing")
     }
 
-    const coverImage = uploadCloudinary(coverImageLocalPath)
+    const coverImage = await uploadCloudinary(coverImageLocalPath)
 
     if(!coverImage.url){
         throw new ApiError(400,"Error while uploading cover image")
@@ -386,7 +398,7 @@ const updateUserCoverImage = asyncHandler(async(req,res) =>{
 
     const coverImageUrl = oldUserCoverImage.coverImage.url || oldUserCoverImage.coverImage;
 
-    const user = User.findByIdAndUpdate(
+    const user =await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set : {
@@ -398,8 +410,9 @@ const updateUserCoverImage = asyncHandler(async(req,res) =>{
 
     if(coverImageUrl){
         try {
-            const oldPublicId = coverImageUrl.split('/').pop().split('.')[0];
-            await cloudinary.v2.uploader.destroy("oldPublicId");
+            const oldPublicId = coverImageUrl.split(/\/v\d+\/(.+)\./)[1];
+            await cloudinary.uploader.destroy(oldPublicId);
+            console.log("Old file deleted");
         } catch (error) {
             console.log("Error in deleting coverImage",error)
         }
@@ -407,7 +420,7 @@ const updateUserCoverImage = asyncHandler(async(req,res) =>{
 
     return res
     .status(200)
-    .json (
+    .json(
         new ApiResponse(
             200,
             user,
@@ -417,7 +430,7 @@ const updateUserCoverImage = asyncHandler(async(req,res) =>{
 })
 
 //for subscribers subscribed to and subscribed button
-
+//solve in postman
 const getUserChannelProfile = asyncHandler (async(req,res) =>{
     const {username} = req.params//for fetching data from url
 

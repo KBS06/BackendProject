@@ -39,7 +39,7 @@ router.route("/refresh-token").post(refreshAccessToken)
 
 router.route("/change-password").post(verifyJWT,changeCurrentPassword)//as we want to take details from user
 router.route("/current-user").get(verifyJWT,getCurrentUser)//as nothing to take from user
-router.route("update-account").patch(verifyJWT,updateAccountDetails)//as we want to update existing details
+router.route("/update-account").patch(verifyJWT,updateAccountDetails)//as we want to update existing details
 
 router.route("/avatar").patch(verifyJWT, upload.single("avatar"),updateUserAvatar)//multer upload method to get file
 router.route("/cover-image").patch(verifyJWT,upload.single("coverImage"),updateUserCoverImage)

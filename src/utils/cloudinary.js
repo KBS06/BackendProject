@@ -14,14 +14,14 @@ const uploadCloudinary = async (localFilePath) => {
         const response = await cloudinary.uploader.upload(localFilePath,{
             resource_type:"auto"
         })
-        // //file has been uploaded successfully
-        // console.log("file is uploaded on cloudinary",response.url);
-        //console.log(response);
-        // fs.unlink(localFilePath,(err)=>{
-        //     if(err && err.code !== 'ENOENT'){
-        //         console.error('Error deleting file:',err);
-        //     }
-        // })
+        //file has been uploaded successfully
+        console.log("file is uploaded on cloudinary",response.secure_url);
+        console.log(response);
+        fs.unlink(localFilePath,(err)=>{
+            if(err && err.code !== 'ENOENT'){
+                console.error('Error deleting file:',err);
+            }
+        })
         return response;
 
     }catch(error){
